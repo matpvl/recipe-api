@@ -1,2 +1,2 @@
 # recipe-api
-Django REST API project
+Advanced Django REST API project
