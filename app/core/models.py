@@ -14,7 +14,7 @@ class UserManager(BaseUserManager):
 
     def create_user(self, email, password=None, **extra_fields):
         """Create, save and return a new user."""
-        user = self.model(email=email, **extra_fields)
+        user = self.model(email=self.normalize_email(email), **extra_fields)
         # We defaulted the password to None ^^^
         user.set_password(password)
         # using=self._db is the best practice since it can support that we add multiple databases
