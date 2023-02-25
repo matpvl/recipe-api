@@ -47,3 +47,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     # We override the username field with email
     USERNAME_FIELD = "email"
+
+    def get_name(self):
+        """Get users name field"""
+        return self.name.capitalize()
