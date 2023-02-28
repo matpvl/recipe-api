@@ -46,9 +46,9 @@ class ModelTests(TestCase):
 
     def test_get_name(self):
         """Test that .get_name() returns capitalized name"""
-        name = 'petar'
+        name = "petar"
         user = get_user_model().objects.create_user(
-            email="email@example.com", password='example123'
+            email="email@example.com", password="example123"
         )
         user.name = name
         self.assertEqual(user.get_name(), name.capitalize())

@@ -15,20 +15,18 @@ class AdminSiteTests(TestCase):
         """Create user and client."""
         self.client = Client()
         self.admin_user = get_user_model().objects.create_superuser(
-            email='admin@example.com',
-            password='testpass123',
+            email="admin@example.com",
+            password="testpass123",
         )
         # Every request will be authenticated because of force_login().
         self.client.force_login(self.admin_user)
         self.user = get_user_model().objects.create_user(
-            email='user@example.com',
-            password='testpass123',
-            name='Test User'
+            email="user@example.com", password="testpass123", name="Test User"
         )
 
     def test_users_list(self):
         """Test that users are listed on page."""
-        url = reverse('admin:core_user_changelist')
+        url = reverse("admin:core_user_changelist")
         # This url is given in django docs, this page gives us the list of users.
         res = self.client.get(url)
 
@@ -37,14 +35,14 @@ class AdminSiteTests(TestCase):
 
     def test_edit_user_page(self):
         """Test the edit user page works."""
-        url = reverse('admin:core_user_change', args=[self.user.id])
+        url = reverse("admin:core_user_change", args=[self.user.id])
         res = self.client.get(url)
 
         self.assertEqual(res.status_code, 200)
 
     def test_create_user_page(self):
         """Test the create user page works."""
-        url = reverse('admin:core_user_add')
+        url = reverse("admin:core_user_add")
         res = self.client.get(url)
 
         self.assertEqual(res.status_code, 200)
