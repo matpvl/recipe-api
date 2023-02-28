@@ -10,6 +10,7 @@ from django.test import Client
 class AdminSiteTests(TestCase):
     """Tests for django admin."""
 
+    # This camelcase is django syntax
     def setUp(self):
         """Create user and client."""
         self.client = Client()
