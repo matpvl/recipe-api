@@ -1,6 +1,8 @@
 """
 Tests for models.
 """
+import datetime
+
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
@@ -52,3 +54,12 @@ class ModelTests(TestCase):
         )
         user.name = name
         self.assertEqual(user.get_name(), name.capitalize())
+
+    def test_date_of_birth(self):
+        """Test that date of birth is < today."""
+        date = datetime.date.today()
+        dob = datetime.date(1998, 11, 11)
+        user = get_user_model().objects.create_user(
+            email="email@example.com", password="example123", birthday=dob
+        )
+        self.assertGreaterEqual(date, user.birthday)

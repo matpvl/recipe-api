@@ -68,6 +68,18 @@ class PublicUserApiTests(TestCase):
         user_exists = get_user_model().objects.filter(email=payload["email"]).exists()
         self.assertFalse(user_exists)
 
+    def test_birthday_format_works(self):
+        """Test birthday is saved correctly."""
+        payload = {
+            "email": "test@example.com",
+            "password": "testpass123",
+            "name": "Test Name",
+            "birthday": "1998-11-18",
+        }
+        res = self.client.post(CREATE_USER_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
     def test_create_token_for_user(self):
         """Test generates token for valid credentials."""
         user_details = {
@@ -83,7 +95,7 @@ class PublicUserApiTests(TestCase):
         }
         res = self.client.post(TOKEN_URL, payload)
 
-        # We check that the response has a token and that the status code was 200.
+        # We check that 'res' provides a token and that the status code was 200.
         self.assertIn("token", res.data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
@@ -91,6 +103,8 @@ class PublicUserApiTests(TestCase):
         """Test returns error if credentials invalid."""
         create_user(email="test@example.com", password="goodpass")
 
+        # Once we have created a user in the database we provide false credentials
+        # into the TOKEN_URL as payload.
         payload = {"email": "test@example.com", "password": "badpass"}
         res = self.client.post(TOKEN_URL, payload)
 
@@ -135,11 +149,15 @@ class PrivateUserApiTest(TestCase):
             {
                 "name": self.user.name,
                 "email": self.user.email,
+                "birthday": self.user.birthday,
             },
         )
 
     def test_post_me_not_allowed(self):
         """Test POST is not allowed for the 'me' endpoint"""
+        # We are making sure this endpoint has POST disabled,
+        # since we're not creating anything with this endpoint.
+
         res = self.client.post(ME_URL, {})
 
         self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -148,10 +166,27 @@ class PrivateUserApiTest(TestCase):
         """Test updating the user profile for the authenticated user."""
         payload = {"name": "Updated Name", "password": "newpass123"}
 
+        # We update the existing user from setUp with a PATCH request.
         res = self.client.patch(ME_URL, payload)
 
         self.user.refresh_from_db()
 
         self.assertEqual(self.user.name, payload["name"])
         self.assertTrue(self.user.check_password(payload["password"]))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_update_user_birthday_with_wrong_date_format(self):
+        """Test updating the user profile with incorrect date format."""
+        payload = {"birthday": "18-11-1998", "password": "testpass123"}
+
+        res = self.client.patch(ME_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_user_birthday_with_correct_date_format(self):
+        """Test updating the birthday with correct format."""
+        payload = {"birthday": "2006-11-20", "password": "testpass123"}
+
+        res = self.client.patch(ME_URL, payload)
+
         self.assertEqual(res.status_code, status.HTTP_200_OK)

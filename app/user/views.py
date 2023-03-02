@@ -21,6 +21,8 @@ class CreateTokenView(ObtainAuthToken):
     """Create a new auth token for user."""
 
     serializer_class = AuthTokenSerializer
+    # We add renderer_classes as follows in order to insure
+    # a browsable API.
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
 
 
@@ -28,7 +30,12 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
     """Manage the authenticated user."""
 
     serializer_class = UserSerializer
+
+    # Token authentication is used to check the user, as in
+    # how do we know the user is who they say they are.
     authentication_classes = [authentication.TokenAuthentication]
+
+    # Permission classes are used to see what permissions the user has.
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
