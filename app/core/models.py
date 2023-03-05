@@ -57,6 +57,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Recipe(models.Model):
     """Recipe object."""
+
     user = models.ForeignKey(
         # We reference the user model from the settings,
         # in case something is changed we don't have to go through
