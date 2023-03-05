@@ -13,3 +13,13 @@ class RecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ["id", "title", "time_minutes", "price", "link"]
         read_only_fields = ["id"]
+
+
+# We are using RecipeSerializer as the base class of RecipeDetailSerializer,
+# since RecipeDetailSerializer will serve as an extension of the RecipeSerializer.
+class RecipeDetailSerializer(RecipeSerializer):
+    """Serializer for recipe detail view."""
+
+    # We also have to specify the Meta class inheritance in this case.
+    class Meta(RecipeSerializer.Meta):
+        fields = RecipeSerializer.Meta.fields + ["description"]
