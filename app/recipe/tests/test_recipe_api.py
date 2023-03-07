@@ -197,7 +197,7 @@ class PrivateRecipeAPITests(TestCase):
         new_user = create_user(email="user2@example.com", password="testpass123")
         recipe = create_recipe(user=self.user)
 
-        payload = {'user': new_user.id}
+        payload = {"user": new_user.id}
         url = detail_url(recipe.id)
         self.client.patch(url, payload)
 
@@ -217,7 +217,7 @@ class PrivateRecipeAPITests(TestCase):
 
     def test_delete_other_users_recipe_error(self):
         """Test trying to delete another users recipe gives error."""
-        new_user = create_user(email='user2@example.com', password="testpass123")
+        new_user = create_user(email="user2@example.com", password="testpass123")
         recipe = create_recipe(user=new_user)
 
         url = detail_url(recipe.id)
