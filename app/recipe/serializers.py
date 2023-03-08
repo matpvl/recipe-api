@@ -3,7 +3,16 @@ Serializers for recipe APIs.
 """
 from rest_framework import serializers
 
-from core.models import Recipe, Tag
+from core.models import Recipe, Tag, Ingredient
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+    """Serializer for ingredients."""
+
+    class Meta:
+        model = Ingredient
+        fields = ["id", "name"]
+        read_only_fields = ["id"]
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -17,7 +26,9 @@ class TagSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     """Serializer for recipes."""
+
     tags = TagSerializer(many=True, required=False)
+    # ingredients = IngredientSerializer(many=True, required=False)
 
     class Meta:
         model = Recipe
@@ -26,14 +37,11 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def _get_or_create_tags(self, tags, recipe):
         """Handle getting or creating tags as needed."""
-        auth_user = self.context['request'].user
+        auth_user = self.context["request"].user
         for tag in tags:
             # get_or_create is a Model Manager helper function which will get the
             # value if it exists for the user and Tag.name that's provided, or create one.
-            tag_obj, created = Tag.objects.get_or_create(
-                user=auth_user,
-                **tag
-            )
+            tag_obj, created = Tag.objects.get_or_create(user=auth_user, **tag)
             recipe.tags.add(tag_obj)
 
     def create(self, validated_data):
@@ -41,7 +49,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         # If tags exist in validated data, we will remove it, and
         # add it to a new variable called tags, if it does not exist
         # we will just use it as an empty list.
-        tags = validated_data.pop('tags', [])
+        tags = validated_data.pop("tags", [])
         # Django expects tags to be created separately, so we create custom logic.
         recipe = Recipe.objects.create(**validated_data)
         self._get_or_create_tags(tags, recipe)
