@@ -24,14 +24,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = ["id", "title", "time_minutes", "price", "link", "tags"]
         read_only_fields = ["id"]
 
-    def create(self, validated_data):
-        """Create a recipe."""
-        # If tags exist in validated data, we will remove it, and
-        # add it to a new variable called tags, if it does not exist
-        # we will just use it as an empty list.
-        tags = validated_data.pop('tags', [])
-        # Django expects tags to be created separately, so we create custom logic.
-        recipe = Recipe.objects.create(**validated_data)
+    def _get_or_create_tags(self, tags, recipe):
+        """Handle getting or creating tags as needed."""
         auth_user = self.context['request'].user
         for tag in tags:
             # get_or_create is a Model Manager helper function which will get the
@@ -42,7 +36,30 @@ class RecipeSerializer(serializers.ModelSerializer):
             )
             recipe.tags.add(tag_obj)
 
+    def create(self, validated_data):
+        """Create a recipe."""
+        # If tags exist in validated data, we will remove it, and
+        # add it to a new variable called tags, if it does not exist
+        # we will just use it as an empty list.
+        tags = validated_data.pop('tags', [])
+        # Django expects tags to be created separately, so we create custom logic.
+        recipe = Recipe.objects.create(**validated_data)
+        self._get_or_create_tags(tags, recipe)
+
         return recipe
+
+    def update(self, instance, validated_data):
+        """Update recipe."""
+        tags = validated_data.pop("tags", None)
+        if tags is not None:
+            instance.tags.clear()
+            self._get_or_create_tags(tags, instance)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
 
 
 # We are using RecipeSerializer as the base class of RecipeDetailSerializer,
