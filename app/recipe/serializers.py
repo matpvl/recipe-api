@@ -100,7 +100,7 @@ class RecipeDetailSerializer(RecipeSerializer):
 
     # We also have to specify the Meta class inheritance in this case.
     class Meta(RecipeSerializer.Meta):
-        fields = RecipeSerializer.Meta.fields + ["description"]
+        fields = RecipeSerializer.Meta.fields + ["description", "image"]
 
 
 class RecipeImageSerializer(serializers.ModelSerializer):
